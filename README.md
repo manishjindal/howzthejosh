@@ -7,6 +7,8 @@ Clone the repository:
 ```
 git clone https://github.com/prithviraju/howzthejosh.git
 cd howzthejosh/
+pip3 install -r requirements.txt
+python3 emotions.py
 ```
 
 ## To train new models for emotion classification
