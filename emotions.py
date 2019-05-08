@@ -9,6 +9,10 @@ from utils.inference import draw_bounding_box
 from utils.inference import apply_offsets
 from utils.inference import load_detection_model
 from utils.preprocessor import preprocess_input
+import json
+from elasticsearch import Elasticsearch
+import time
+
 
 USE_WEBCAM = True # If false, loads video file source
 
@@ -42,6 +46,9 @@ if (USE_WEBCAM == True):
 else:
     cap = cv2.VideoCapture('./demo/dinner.mp4') # Video file source
 
+
+es = Elasticsearch([{'host': '10.145.65.71', 'port': 9200}])
+
 while cap.isOpened(): # True:
     ret, bgr_image = cap.read()
 
@@ -69,6 +76,12 @@ while cap.isOpened(): # True:
         emotion_probability = np.max(emotion_prediction)
         emotion_label_arg = np.argmax(emotion_prediction)
         emotion_text = emotion_labels[emotion_label_arg]
+        data={}
+        data['emotion'] = emotion_text
+        millis = int(round(time.time() * 1000))
+        data['date'] = millis
+        data['term'] = 1
+        es.index(index='emotional', doc_type='logs', body=json.dumps(data))
         emotion_window.append(emotion_text)
 
         if len(emotion_window) > frame_window:
